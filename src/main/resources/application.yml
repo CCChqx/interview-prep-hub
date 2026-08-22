@@ -1,0 +1,30 @@
+# ===== Application =====
+spring:
+  application:
+    name: studyhub
+
+  # ===== Datasource (replace with your MySQL root password) =====
+  datasource:
+    url: jdbc:mysql://localhost:3306/studyhub?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
+    username: root
+    password: 123456
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+# ===== Server Port =====
+server:
+  port: 8080
+
+# ===== MyBatis-Plus =====
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+# ===== Knife4j =====
+knife4j:
+  enable: true
+
+# ===== Logging =====
+logging:
+  level:
+    com.studyhub: debug

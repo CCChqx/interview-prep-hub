@@ -53,6 +53,13 @@
             <version>3.5.9</version>
         </dependency>
 
+        <!-- 分页插件依赖（MP 3.5.9 起 PaginationInnerInterceptor 需要 jsqlparser） -->
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-jsqlparser</artifactId>
+            <version>3.5.9</version>
+        </dependency>
+
         <!-- Knife4j 接口文档（Swagger增强版） -->
         <dependency>
             <groupId>com.github.xingfudeshi</groupId>

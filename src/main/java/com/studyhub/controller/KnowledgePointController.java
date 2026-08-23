@@ -1,5 +1,6 @@
 package com.studyhub.controller;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.studyhub.common.Result;
 import com.studyhub.entity.KnowledgePoint;
 import com.studyhub.service.KnowledgePointService;
@@ -36,4 +37,15 @@ public class KnowledgePointController {
         return Result.success();
     }
 
+    @GetMapping()
+    public Result<Page<KnowledgePoint>> list(@RequestParam(defaultValue = "1") int page,
+                                             @RequestParam(defaultValue = "10")  int size,
+                                             @RequestParam(required = false) Long categoryId,
+                                             @RequestParam(required = false) String keyword,
+                                             @RequestParam(required = false) Integer importance,
+                                             @RequestParam(required = false) Integer status) {
+
+        return Result.success(knowledgePointService.getPage(page, size, categoryId, keyword, importance, status));
+
+    }
 }

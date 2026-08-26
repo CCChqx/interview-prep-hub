@@ -55,6 +55,9 @@ public class KnowledgePointServiceImpl extends ServiceImpl<KnowledgePointMapper,
     @Override
     public Page<KnowledgePoint> getPage(int page,int size,Long categoryId, String keyword,Integer importance,Integer status){
 
+        size = Math.min(size,100);
+        page = Math.min(page,1);
+
         // 告诉 MP 我要第 page页，每页size条
         Page<KnowledgePoint> p = new Page<>(page,size);
 

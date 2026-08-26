@@ -11,16 +11,22 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class KnowledgePoint {
+
+    // 分组接口，只是空接口
+    public interface Add{}
+    public interface Update{}
+
+
     private Long id;
 
-    @NotNull(message = "分类id不能为空")
+    @NotNull(message = "所属分类不能为空")
     private Long categoryId;
 
-    @NotBlank
+    @NotBlank(groups = Add.class, message = "标题不能为空")
     @Size(max=200,message = "标题最长200个字符")
     private String title;
 
-    @NotBlank(message = "内容不能为空")
+    @NotBlank(groups = Add.class, message = "内容不能为空")
     private String content;
 
     @Size(max = 200)

@@ -1,5 +1,6 @@
 package com.studyhub.entity;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -16,6 +17,7 @@ public class Category {
 
     private Long id;
 
+    @Schema(description = "分类名称")
     @Size(max=50,message = "分类名最长50个字符")
     @NotBlank(message = "分类名不能为空")
     private String name;

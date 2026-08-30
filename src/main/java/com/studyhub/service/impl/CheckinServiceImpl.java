@@ -1,5 +1,6 @@
 package com.studyhub.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.studyhub.entity.StudyRecord;
 import com.studyhub.mapper.StudyRecordMapper;
 import com.studyhub.service.CheckinService;
@@ -98,21 +99,40 @@ public class CheckinServiceImpl implements CheckinService {
         return 0;
     }
 
-    // 数据归集
+    // 数据归集（有则更新、无则插入）——直接替换旧版
     @Scheduled(cron = "0 5 0 * * ?")
     public void archiveYesterday() {
         LocalDate yesterday = LocalDate.now().minusDays(1);
         String minutes = stringRedisTemplate.opsForValue().get(durationKey(yesterday));
         String questions = stringRedisTemplate.opsForValue().get(questionKey(yesterday));
-        if(questions == null && minutes == null) return; // 昨天没数据 跳过
+        if (questions == null && minutes == null) return; // 昨天没数据 跳过
 
-        StudyRecord sr = new StudyRecord();
-        sr.setRecordDate(yesterday);
-        sr.setDuration(minutes == null ? 0 : Integer.parseInt(minutes));
-        sr.setQuestionCount(questions == null ? 0 : Integer.parseInt(questions));
-        sr.setCreateTime(LocalDateTime.now());
-        sr.setUpdateTime(LocalDateTime.now());
-        studyRecordMapper.insert(sr);
+        int duration = minutes == null ? 0 : Integer.parseInt(minutes);
+        int questionCount = questions == null ? 0 : Integer.parseInt(questions);
+
+        // 先查：昨天这一行在不在表里
+        LambdaQueryWrapper<StudyRecord> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(StudyRecord::getRecordDate, yesterday);
+        StudyRecord existing = studyRecordMapper.selectOne(wrapper);
+
+        if (existing != null) {
+            // 在 → 更新（改查出来的对象，再存回去）
+            existing.setDuration(duration);
+            existing.setQuestionCount(questionCount);
+            existing.setUpdateTime(LocalDateTime.now());
+            studyRecordMapper.updateById(existing);
+        } else {
+            // 不在 → 插入新的一行
+            StudyRecord sr = new StudyRecord();
+            sr.setRecordDate(yesterday);
+            sr.setDuration(duration);
+            sr.setQuestionCount(questionCount);
+            sr.setCreateTime(LocalDateTime.now());
+            sr.setUpdateTime(LocalDateTime.now());
+            studyRecordMapper.insert(sr);
+        }
     }
+
+
 }
 

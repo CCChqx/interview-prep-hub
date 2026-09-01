@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class CheckinServiceImpl implements CheckinService {
@@ -74,12 +75,6 @@ public class CheckinServiceImpl implements CheckinService {
         return v == null ? 0 : Long.parseLong(v);
     }
 
-    // 获取总时长
-    @Override
-    public long getTotalDuration() {
-        return 0;
-    }
-
     // 累加题目总数
     @Override
     public void addQuestions(int count) {
@@ -93,11 +88,6 @@ public class CheckinServiceImpl implements CheckinService {
         return v == null ? 0 : Long.parseLong(v);
     }
 
-    // 获取总题数
-    @Override
-    public long getTotalQuestions() {
-        return 0;
-    }
 
     // 数据归集（有则更新、无则插入）——直接替换旧版
     @Scheduled(cron = "0 5 0 * * ?")
@@ -133,6 +123,19 @@ public class CheckinServiceImpl implements CheckinService {
         }
     }
 
+    // 获取总时长
+    @Override
+    public long getTotalDuration(){
+        Long sum = studyRecordMapper.sumDuration();
+        return sum == null ? 0 : sum;
+    }
+
+    // 获取总题目
+    @Override
+    public long getTotalQuestions(){
+        Long count = studyRecordMapper.sumQuestionCount();
+        return count == null ? 0 : count;
+    }
 
 }
 

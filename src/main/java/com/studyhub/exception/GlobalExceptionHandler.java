@@ -1,6 +1,7 @@
 package com.studyhub.exception;
 
 import com.studyhub.common.Result;
+import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -26,6 +27,13 @@ public class GlobalExceptionHandler {
         }
         return Result.error(400,message);
     }
+
+    // 接 @RequserParam  参数校验失败
+    @ExceptionHandler(ConstraintViolationException.class)
+    public Result<Void> handleConstraintViolationException(ConstraintViolationException e) {
+        return Result.error(400,"参数校验失败" + e.getMessage());
+    }
+
 
     // 兜底 (其他所有异常，防止堆栈泄露给前端)
     @ExceptionHandler(Exception.class)

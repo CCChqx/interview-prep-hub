@@ -17,4 +17,6 @@ public interface CheckinService {
     long getTodayQuestions(); //查今日题数
 
     long getTotalQuestions(); //查累计题数
+
+    void archiveYesterday();
 }

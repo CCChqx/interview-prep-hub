@@ -34,3 +34,8 @@ knife4j:
 logging:
   level:
     com.studyhub: debug
+
+#==== JWT ====
+jwt:
+  secret: studyhub-jwt-secret-key-must-be-at-least-32-chars!! #必须>=32字符
+  expiration: 604800000 # 7天 毫秒

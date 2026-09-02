@@ -44,8 +44,8 @@ public class CheckinController {
     }
 
     @Operation(summary = "累加今日题目数")
-    @PostMapping("/qusetion")
-    public Result<Void> addQusetion(@RequestParam int questionId){
+    @PostMapping("/question")
+    public Result<Void> addQuestion(@RequestParam int questionId){
         checkinService.addQuestions(questionId);
         return Result.success();
     }

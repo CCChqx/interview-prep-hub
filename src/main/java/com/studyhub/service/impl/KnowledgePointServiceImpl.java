@@ -16,6 +16,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
+import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
 @Slf4j
@@ -46,6 +47,7 @@ public class KnowledgePointServiceImpl extends ServiceImpl<KnowledgePointMapper,
         if (categoryMapper.selectById(knowledgePoint.getCategoryId()) == null) {
             throw new BusinessException(400, "分类不存在");
         }
+        clearPageCache();
         return this.save(knowledgePoint);
     }
 
@@ -55,6 +57,7 @@ public class KnowledgePointServiceImpl extends ServiceImpl<KnowledgePointMapper,
             throw new BusinessException(404,"知识点不存在");
         }
         this.updateById(knowledgePoint);
+        clearPageCache();
         return this.getById(knowledgePoint.getId());
     }
 
@@ -63,6 +66,7 @@ public class KnowledgePointServiceImpl extends ServiceImpl<KnowledgePointMapper,
        if(this.getById(id) == null){
            throw new BusinessException(404,"知识点不存在");
        }
+       clearPageCache();
        return this.removeById(id);
     }
 
@@ -70,7 +74,7 @@ public class KnowledgePointServiceImpl extends ServiceImpl<KnowledgePointMapper,
     public Page<KnowledgePoint> getPage(int page,int size,Long categoryId, String keyword,Integer importance,Integer status){
 
         size = Math.min(size,100);
-        page = Math.min(page,1);
+        page = Math.max(page,1);
 
         // 缓存key 按查询参数拼，不同条件 = 不同缓存
         String key = "studyhub:kp:page" + categoryId + "_" + page + "_" + size + "_" + keyword + "_" + importance + "_" + status;
@@ -123,6 +127,14 @@ public class KnowledgePointServiceImpl extends ServiceImpl<KnowledgePointMapper,
             log.warn("回填缓存失败 key={}",key,e);
         }
         return result;
+    }
+
+    // 清所有分页列表缓存 （增删改会影响列表）
+    private void clearPageCache(){
+        Set<String> keys = stringRedisTemplate.keys("studyhub:kp:page*");
+        if (keys != null && !keys.isEmpty()) {
+            stringRedisTemplate.delete(keys);
+        }
     }
 
 }

@@ -35,11 +35,56 @@ public class KnowledgePointServiceImpl extends ServiceImpl<KnowledgePointMapper,
 
     @Override
     public KnowledgePoint getDetail(Long id) {
-         KnowledgePoint kp = getById(id);
-        if(kp == null){
-            throw new BusinessException(404,"知识点不存在");
+        String key = "studyhub:kp:detail:" + id;
+
+        // 先查缓存
+        String cache = stringRedisTemplate.opsForValue().get(key);
+
+        if (cache != null) {
+            if ("__NULL__".equals(cache)) {
+                throw new BusinessException(404,"知识点不存在");
+            }
+            try{
+                return objectMapper.readValue(cache,KnowledgePoint.class);
+            }catch (Exception e){
+                log.warn("缓存反序列化失败 key={}",key,e);
+            }
         }
-        return kp;
+
+        // 没命中→抢锁（防击穿，只让一个线程查库回填）
+        String lockKey = "studyhub:kp:detail:lock:" + id;
+        Boolean locked = stringRedisTemplate.opsForValue()
+                .setIfAbsent(lockKey,"1",Duration.ofSeconds(3));  // setnx + 3秒过期
+
+        if (Boolean.TRUE.equals(locked)) {
+            // 抢到锁：查库+回填+释放锁
+            try{
+                KnowledgePoint kp = getById(id);
+                if(kp == null){
+                    // 空值缓存,查不到也缓存空标记,TTL短（5分钟）,放穿透
+                    stringRedisTemplate.opsForValue().set(key,"__NULL__",Duration.ofMinutes(5));
+                    throw new BusinessException(404,"知识点不存在");
+                }
+                // 回填缓存：writeValueAsString 抛受检异常，单独try-catch
+                try {
+                    stringRedisTemplate.opsForValue().set(key, objectMapper.writeValueAsString(kp),
+                            Duration.ofMinutes(30 + ThreadLocalRandom.current().nextInt(10)));
+                }catch (Exception e){
+                    log.warn("回填缓存失败 key={}",key,e);
+                }
+                return kp;
+            }finally {
+                stringRedisTemplate.delete(lockKey); // 释放锁
+            }
+        }else {
+            // 没抢到锁：别人正在回填，睡50ms重试（此时应已回填）
+            try{
+                Thread.sleep(50);
+            }catch (InterruptedException e){
+                Thread.currentThread().interrupt();
+            }
+            return getDetail(id); //重试，缓存命中直接返回
+        }
     }
 
     @Override
@@ -58,6 +103,7 @@ public class KnowledgePointServiceImpl extends ServiceImpl<KnowledgePointMapper,
         }
         this.updateById(knowledgePoint);
         clearPageCache();
+        stringRedisTemplate.delete("studyhub:kp:detail:" + knowledgePoint.getId());
         return this.getById(knowledgePoint.getId());
     }
 
@@ -67,6 +113,7 @@ public class KnowledgePointServiceImpl extends ServiceImpl<KnowledgePointMapper,
            throw new BusinessException(404,"知识点不存在");
        }
        clearPageCache();
+       stringRedisTemplate.delete("studyhub:kp:detail:" + id);
        return this.removeById(id);
     }
 

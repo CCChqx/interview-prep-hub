@@ -75,7 +75,7 @@ public class PracticeServiceImpl implements PracticeService {
             // 没学过 → 建记录 + 状态 未学0 学习中1
             reviewRecord = new ReviewRecord();
             reviewRecord.setKnowledgeId(knowledgeId);
-            reviewRecord.setEf(2.5);
+            reviewRecord.setEf(SM2Calculator.updateEF(2.5,quality));
             reviewRecord.setIntervalDays(0);
             reviewRecord.setNextReviewDate(LocalDate.now());
             reviewRecord.setMastered(0);

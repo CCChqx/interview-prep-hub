@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @Tag(name = "知识点管理",description = "知识点的增删改查")
 @RestController
 @RequestMapping("/api/knowledgepoint")
@@ -59,5 +61,12 @@ public class KnowledgePointController {
 
         return Result.success(knowledgePointService.getPage(page, size, categoryId, keyword, importance, status));
 
+    }
+
+    @Operation(summary = "批量导入知识点",description = "按 title 幂等,重复的不插入")
+    @PostMapping("/import")
+    public Result<Integer> batchImport(@RequestBody List<KnowledgePoint> list) {
+        knowledgePointService.batchImport(list);
+        return Result.success(list.size()); // 返回本次导入条数
     }
 }

@@ -14,10 +14,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
+import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -184,4 +188,32 @@ public class KnowledgePointServiceImpl extends ServiceImpl<KnowledgePointMapper,
         }
     }
 
+    @Override
+    @Transactional //每批一个事务
+    public boolean batchImport(List<KnowledgePoint> list) {
+        if (list == null || list.isEmpty()) {
+            throw new BusinessException(400,"导入数据为空");
+        }
+
+        // 幂等，收集非空title
+        Set<String> titles = list.stream()
+                .map(KnowledgePoint::getTitle)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+        // 查询已在库里的title
+        LambdaQueryWrapper<KnowledgePoint> wrapper = new LambdaQueryWrapper<>();
+        wrapper.in(KnowledgePoint::getTitle,titles);
+        Set<String> existing = this.list(wrapper).stream()
+                .map(KnowledgePoint::getTitle)
+                .collect(Collectors.toSet());
+        // 只插入不在数据库中的（去重）
+        List<KnowledgePoint> toInsert = list.stream()
+                .filter(kp -> !existing.contains(kp.getTitle()))
+                .collect(Collectors.toList());
+        if (toInsert.isEmpty()) {
+            return true; //全重复跳过
+        }
+        // 分批 + 批量插入 （saveBacth 每500条一批）
+        return this.saveBatch(toInsert,500);
+    }
 }

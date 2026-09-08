@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.studyhub.entity.KnowledgePoint;
 
+import java.util.List;
+
 public interface KnowledgePointService extends IService<KnowledgePoint> {
 
     // 查询
@@ -21,4 +23,7 @@ public interface KnowledgePointService extends IService<KnowledgePoint> {
     // 分页查询
     Page<KnowledgePoint> getPage(int page, int size, Long categoryId,
                  String keyword, Integer importance, Integer status);
+
+    // 批量导入
+    boolean batchImport(List<KnowledgePoint> list);
 }

@@ -25,8 +25,8 @@ public class PracticeController {
     }
 
     @Operation(summary = "看答案")
-    @GetMapping("/{id}/anwser")
-    public Result<KnowledgePoint> anwser(@PathVariable Long id){
+    @GetMapping("/{id}/answer")
+    public Result<KnowledgePoint> answer(@PathVariable Long id){
         return Result.success(practiceService.getAnswer(id));
     }
 

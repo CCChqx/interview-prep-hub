@@ -2,7 +2,7 @@
 spring:
   data:
     redis:
-      host: 192.168.220.134
+      host: 192.168.220.138
       port: 6379
       password: 159357
       timeout: 5000

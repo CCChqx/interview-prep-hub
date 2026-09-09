@@ -17,10 +17,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -189,8 +191,7 @@ public class KnowledgePointServiceImpl extends ServiceImpl<KnowledgePointMapper,
     }
 
     @Override
-    @Transactional //每批一个事务
-    public boolean batchImport(List<KnowledgePoint> list) {
+    public int batchImport(List<KnowledgePoint> list) {
         if (list == null || list.isEmpty()) {
             throw new BusinessException(400,"导入数据为空");
         }
@@ -211,9 +212,47 @@ public class KnowledgePointServiceImpl extends ServiceImpl<KnowledgePointMapper,
                 .filter(kp -> !existing.contains(kp.getTitle()))
                 .collect(Collectors.toList());
         if (toInsert.isEmpty()) {
-            return true; //全重复跳过
+            return 0; //全重复跳过
         }
-        // 分批 + 批量插入 （saveBacth 每500条一批）
-        return this.saveBatch(toInsert,500);
+        // 手写分批:每500条一批
+        List<List<KnowledgePoint>> batches = new ArrayList<>();
+        for (int i = 0; i < toInsert.size(); i+=500) {
+            batches.add(toInsert.subList(i,Math.min(i + 500,toInsert.size())));
+        }
+
+        // 自定义线程池(7参数，不用Executors)
+        ThreadPoolExecutor pool = new ThreadPoolExecutor(
+                4,                  // 核心线程数
+                8,                             // 最大线程数
+                60, TimeUnit.SECONDS,          // 空闲线程存活时间
+                new ArrayBlockingQueue<>(100), // 有界队列
+                new ThreadPoolExecutor.CallerRunsPolicy()); // 拒绝策略
+
+        // CountDownLatch 等所有批次 + AtomicInteger 统计条数（线程安全）
+        CountDownLatch latch = new CountDownLatch(batches.size());
+        AtomicInteger inserted = new AtomicInteger(0);
+
+        // 每个批次提交给线程池并执行
+        for (List<KnowledgePoint> batch : batches) {
+            pool.execute(() -> {
+                try{
+                    this.saveBatch(batch,batch.size());  // 并行插入这一批
+                    inserted.addAndGet(batch.size());    //累加实际插入数
+                }catch (Exception e){
+                    log.error("并发批次插入失败",e);
+                }finally {
+                    latch.countDown();  // 这一批完成了
+                }
+            });
+
+        }
+        try{
+            latch.await();  // 等所有批次完成
+        }catch (InterruptedException e){
+            Thread.currentThread().interrupt();  // 恢复中段标志(最佳实现)
+            log.error("等待批量导入被中断",e);
+        }
+        pool.shutdown(); // 用完关闭线程池
+        return inserted.get();
     }
 }

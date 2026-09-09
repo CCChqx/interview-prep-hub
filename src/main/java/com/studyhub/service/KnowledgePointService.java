@@ -25,5 +25,5 @@ public interface KnowledgePointService extends IService<KnowledgePoint> {
                  String keyword, Integer importance, Integer status);
 
     // 批量导入
-    boolean batchImport(List<KnowledgePoint> list);
+    int batchImport(List<KnowledgePoint> list);
 }

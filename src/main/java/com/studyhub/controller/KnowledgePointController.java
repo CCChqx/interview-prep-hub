@@ -66,7 +66,7 @@ public class KnowledgePointController {
     @Operation(summary = "批量导入知识点",description = "按 title 幂等,重复的不插入")
     @PostMapping("/import")
     public Result<Integer> batchImport(@RequestBody List<KnowledgePoint> list) {
-        knowledgePointService.batchImport(list);
-        return Result.success(list.size()); // 返回本次导入条数
+        int count = knowledgePointService.batchImport(list);
+        return Result.success(count); // 返回本次导入条数
     }
 }

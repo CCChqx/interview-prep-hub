@@ -25,6 +25,9 @@ mybatis-plus:
   configuration:
     map-underscore-to-camel-case: true
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global:
+    db-config:
+      id-type: auto
 
 # ===== Knife4j =====
 knife4j:

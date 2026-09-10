@@ -105,6 +105,12 @@
             <scope>runtime</scope>
         </dependency>
 
+        <dependency>
+            <!--    aop        -->
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-aop</artifactId>
+        </dependency>
+
 
     </dependencies>
 

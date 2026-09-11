@@ -1,6 +1,7 @@
 package com.studyhub.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.studyhub.annotation.Idempotent;
 import com.studyhub.common.Result;
 import com.studyhub.entity.KnowledgePoint;
 import com.studyhub.service.KnowledgePointService;
@@ -64,6 +65,7 @@ public class KnowledgePointController {
     }
 
     @Operation(summary = "批量导入知识点",description = "按 title 幂等,重复的不插入")
+    @Idempotent(value = "studyhub:batchImport",timeout = 5)
     @PostMapping("/import")
     public Result<Integer> batchImport(@RequestBody List<KnowledgePoint> list) {
         int count = knowledgePointService.batchImport(list);

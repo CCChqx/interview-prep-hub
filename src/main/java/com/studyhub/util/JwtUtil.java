@@ -17,17 +17,22 @@ public class JwtUtil {
     @Value("${jwt.secret}")
     private String secret;
 
-    @Value("${jwt.expiration}")
-    private long expiration; //ms
+    @Value("${jwt.access-expiration}")
+    private long accessExpiration; //ms
+
+    @Value("${jwt.refresh-expiration}")
+    private long refreshExpiration;
 
     // 生成 token：payload 里放 useId +username，设定过期时间
     public String generateToken(Long userId,String username,String type) {
         SecretKey key = getKey();
+
+        long expire = "access".equals(type) ? accessExpiration : refreshExpiration;
         return Jwts.builder()
                 .subject(String.valueOf(userId))
-                .claim("type", username)
+                .claim("type", type).claim("username",username)
                 .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + expiration))
+                .expiration(new Date(System.currentTimeMillis() + expire))
                 .signWith(key)
                 .compact();
     }

@@ -2,7 +2,7 @@
 spring:
   data:
     redis:
-      host: 192.168.220.138
+      host: 192.168.220.140
       port: 6379
       password: 159357
       timeout: 5000
@@ -43,4 +43,5 @@ logging:
 #==== JWT ====
 jwt:
   secret: studyhub-jwt-secret-key-must-be-at-least-32-chars!! #必须>=32字符
-  expiration: 604800000 # 7天 毫秒
+  refresh-expiration: 604800000 # 7天 毫秒
+  access-expiration: 1800000

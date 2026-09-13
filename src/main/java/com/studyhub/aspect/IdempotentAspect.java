@@ -24,7 +24,7 @@ public class IdempotentAspect {
     @Around("@annotation(idempotent)")
     public Object around(ProceedingJoinPoint joinPoint, Idempotent idempotent) throws Throwable {
        //  防两次请求,第一次请求设置标记,第二次查找标记是否存在
-        String key = "idem:" + idempotent.value() + ":" + joinPoint.getSignature().toShortString() + Arrays.hashCode(joinPoint.getArgs());
+        String key = "idem:" + idempotent.value() + ":" + joinPoint.getSignature().toShortString() + ":" + Arrays.hashCode(joinPoint.getArgs());
 
         Boolean first = false;
         try{

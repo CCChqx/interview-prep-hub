@@ -21,11 +21,11 @@ public class JwtUtil {
     private long expiration; //ms
 
     // 生成 token：payload 里放 useId +username，设定过期时间
-    public String generateToken(Long userId,String username) {
+    public String generateToken(Long userId,String username,String type) {
         SecretKey key = getKey();
         return Jwts.builder()
                 .subject(String.valueOf(userId))
-                .claim("username", username)
+                .claim("type", username)
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + expiration))
                 .signWith(key)

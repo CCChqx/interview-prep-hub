@@ -7,11 +7,13 @@ import com.studyhub.util.JwtUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,6 +25,9 @@ public class AuthController {
     @Autowired
     private JwtUtil jwtUtil;
 
+    @Autowired
+    private StringRedisTemplate stringRedisTemplate;
+
     @Operation(summary = "登录")
     @PostMapping("/login")
     public Result<Map<String, Object>> login(@RequestBody LoginRequest req) {
@@ -32,12 +37,19 @@ public class AuthController {
         }
 
         // 校验通过 → 签发 token （userId先用1L，表示admin）
-        String token = jwtUtil.generateToken(1L,req.getUsername());
+        String access = jwtUtil.generateToken(1L,req.getUsername(),"access");
+        String refresh = jwtUtil.generateToken(1L,req.getUsername(),"refresh");
+
+        String redisKey = "studyhub:token:refresh:{userId}";
+        stringRedisTemplate.opsForValue().set(redisKey,refresh, Duration.ofDays(7));
 
         // 返回给前端
         Map<String, Object> data = new HashMap<>();
-        data.put("token",token);
+        data.put("access",access);
+        data.put("refresh",refresh);
         data.put("username",req.getUsername());
         return Result.success(data);
     }
+
+    @PostMapping("/refresh")
 }

@@ -1,6 +1,6 @@
 package com.studyhub.service;
 
-import com.studyhub.entity.KnowledgePoint;
+import com.studyhub.pojo.entity.KnowledgePoint;
 
 import java.util.Map;
 

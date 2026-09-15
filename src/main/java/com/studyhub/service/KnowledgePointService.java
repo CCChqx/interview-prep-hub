@@ -2,7 +2,9 @@ package com.studyhub.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.studyhub.entity.KnowledgePoint;
+import com.studyhub.pojo.entity.KnowledgePoint;
+import com.studyhub.pojo.query.KnowledgePointQuery;
+import com.studyhub.pojo.vo.KnowledgePointVO;
 
 import java.util.List;
 
@@ -21,8 +23,7 @@ public interface KnowledgePointService extends IService<KnowledgePoint> {
     boolean delete(Long id);
 
     // 分页查询
-    Page<KnowledgePoint> getPage(int page, int size, Long categoryId,
-                 String keyword, Integer importance, Integer status);
+    Page<KnowledgePointVO> getPage(KnowledgePointQuery query);
 
     // 批量导入
     int batchImport(List<KnowledgePoint> list);

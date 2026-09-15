@@ -1,7 +1,7 @@
 package com.studyhub.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.studyhub.entity.StudyRecord;
+import com.studyhub.pojo.entity.StudyRecord;
 import com.studyhub.mapper.StudyRecordMapper;
 import com.studyhub.service.CheckinService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Service
 public class CheckinServiceImpl implements CheckinService {

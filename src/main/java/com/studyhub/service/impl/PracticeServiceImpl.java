@@ -1,8 +1,8 @@
 package com.studyhub.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.studyhub.entity.KnowledgePoint;
-import com.studyhub.entity.ReviewRecord;
+import com.studyhub.pojo.entity.KnowledgePoint;
+import com.studyhub.pojo.entity.ReviewRecord;
 import com.studyhub.exception.BusinessException;
 import com.studyhub.mapper.KnowledgePointMapper;
 import com.studyhub.mapper.PracticeMapper;

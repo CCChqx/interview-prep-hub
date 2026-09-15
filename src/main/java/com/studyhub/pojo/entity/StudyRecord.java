@@ -1,4 +1,4 @@
-package com.studyhub.entity;
+package com.studyhub.pojo.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;

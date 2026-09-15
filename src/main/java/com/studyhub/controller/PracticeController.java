@@ -1,7 +1,7 @@
 package com.studyhub.controller;
 
 import com.studyhub.common.Result;
-import com.studyhub.entity.KnowledgePoint;
+import com.studyhub.pojo.entity.KnowledgePoint;
 import com.studyhub.service.PracticeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

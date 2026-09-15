@@ -1,4 +1,4 @@
-package com.studyhub.dto;
+package com.studyhub.pojo.dto;
 
 import lombok.Data;
 

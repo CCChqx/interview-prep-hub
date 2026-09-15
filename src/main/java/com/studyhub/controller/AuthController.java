@@ -1,8 +1,8 @@
 package com.studyhub.controller;
 
 import com.studyhub.common.Result;
-import com.studyhub.dto.LoginRequest;
-import com.studyhub.dto.RefreshRequest;
+import com.studyhub.pojo.dto.LoginRequest;
+import com.studyhub.pojo.dto.RefreshRequest;
 import com.studyhub.exception.BusinessException;
 import com.studyhub.util.JwtUtil;
 import io.jsonwebtoken.Claims;

@@ -1,8 +1,8 @@
 package com.studyhub.controller;
 
 import com.studyhub.common.Result;
-import com.studyhub.entity.KnowledgePoint;
-import com.studyhub.entity.ReviewRecord;
+import com.studyhub.pojo.entity.KnowledgePoint;
+import com.studyhub.pojo.entity.ReviewRecord;
 import com.studyhub.service.ReviewService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

@@ -1,6 +1,6 @@
 package com.studyhub.service;
 
-import com.studyhub.entity.Category;
+import com.studyhub.pojo.entity.Category;
 
 import java.util.List;
 

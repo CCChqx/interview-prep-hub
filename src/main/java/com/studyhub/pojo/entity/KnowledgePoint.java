@@ -1,4 +1,4 @@
-package com.studyhub.entity;
+package com.studyhub.pojo.entity;
 
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;

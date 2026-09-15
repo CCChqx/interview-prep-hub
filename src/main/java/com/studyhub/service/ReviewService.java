@@ -1,7 +1,7 @@
 package com.studyhub.service;
 
-import com.studyhub.entity.KnowledgePoint;
-import com.studyhub.entity.ReviewRecord;
+import com.studyhub.pojo.entity.KnowledgePoint;
+import com.studyhub.pojo.entity.ReviewRecord;
 
 import java.time.LocalDate;
 import java.util.List;

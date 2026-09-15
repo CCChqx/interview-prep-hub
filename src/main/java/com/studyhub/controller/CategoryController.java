@@ -1,7 +1,7 @@
 package com.studyhub.controller;
 
 import com.studyhub.common.Result;
-import com.studyhub.entity.Category;
+import com.studyhub.pojo.entity.Category;
 import com.studyhub.service.CategoryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

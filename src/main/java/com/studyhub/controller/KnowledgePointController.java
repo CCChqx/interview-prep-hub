@@ -3,7 +3,9 @@ package com.studyhub.controller;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.studyhub.annotation.Idempotent;
 import com.studyhub.common.Result;
-import com.studyhub.entity.KnowledgePoint;
+import com.studyhub.pojo.entity.KnowledgePoint;
+import com.studyhub.pojo.query.KnowledgePointQuery;
+import com.studyhub.pojo.vo.KnowledgePointVO;
 import com.studyhub.service.KnowledgePointService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -53,14 +55,9 @@ public class KnowledgePointController {
 
     @Operation(summary = "分页查询知识点")
     @GetMapping()
-    public Result<Page<KnowledgePoint>> list(@RequestParam(defaultValue = "1") int page,
-                                             @RequestParam(defaultValue = "10")  int size,
-                                             @RequestParam(required = false) Long categoryId,
-                                             @RequestParam(required = false) String keyword,
-                                             @RequestParam(required = false) Integer importance,
-                                             @RequestParam(required = false) Integer status) {
+    public Result<Page<KnowledgePointVO>> list(KnowledgePointQuery query) {
 
-        return Result.success(knowledgePointService.getPage(page, size, categoryId, keyword, importance, status));
+        return Result.success(knowledgePointService.getPage(query));
 
     }
 

@@ -5,16 +5,18 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.studyhub.entity.KnowledgePoint;
+import com.studyhub.pojo.entity.KnowledgePoint;
 import com.studyhub.exception.BusinessException;
 import com.studyhub.mapper.CategoryMapper;
 import com.studyhub.mapper.KnowledgePointMapper;
+import com.studyhub.pojo.query.KnowledgePointQuery;
+import com.studyhub.pojo.vo.KnowledgePointVO;
 import com.studyhub.service.KnowledgePointService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -124,19 +126,28 @@ public class KnowledgePointServiceImpl extends ServiceImpl<KnowledgePointMapper,
     }
 
     @Override
-    public Page<KnowledgePoint> getPage(int page,int size,Long categoryId, String keyword,Integer importance,Integer status){
+    public Page<KnowledgePointVO> getPage(KnowledgePointQuery query){
+
+        int page = query.getPage() == null?0:query.getPage();
+        int size = query.getSize() == null?0:query.getSize();
+        Long categoryId = query.getCategoryId();
+        String keyword = query.getKeyword();
+        Integer importance = query.getImportance();
+        Integer status = query.getStatus();
 
         size = Math.min(size,100);
         page = Math.max(page,1);
 
         // 缓存key 按查询参数拼，不同条件 = 不同缓存
-        String key = "studyhub:kp:page" + categoryId + "_" + page + "_" + size + "_" + keyword + "_" + importance + "_" + status;
+        String key = "studyhub:kp:page:" + categoryId + "_" + page + "_" + size + "_" + keyword + "_" + importance + "_" + status;
 
         // 先查缓存
         String cache = stringRedisTemplate.opsForValue().get(key);
         if (cache != null) {
             try{
-                return objectMapper.readValue(cache, new TypeReference<Page<KnowledgePoint>>() {});
+                Page<KnowledgePoint> cached = objectMapper.readValue(
+                        cache,new TypeReference<Page<KnowledgePoint>>(){});
+                return toVoPage(cached);
             }catch (Exception e){
                 log.warn("缓存反序列化失败 key={}",key,e); //失败当缓存失效，走查库
             }
@@ -179,7 +190,15 @@ public class KnowledgePointServiceImpl extends ServiceImpl<KnowledgePointMapper,
         }catch (Exception e){
             log.warn("回填缓存失败 key={}",key,e);
         }
-        return result;
+        return toVoPage(result);
+    }
+
+    private Page<KnowledgePointVO> toVoPage(Page<KnowledgePoint> source){
+        return (Page<KnowledgePointVO>) source.convert(kp -> {
+            KnowledgePointVO vo = new KnowledgePointVO();
+            BeanUtils.copyProperties(kp, vo);
+            return vo;
+        });
     }
 
     // 清所有分页列表缓存 （增删改会影响列表）

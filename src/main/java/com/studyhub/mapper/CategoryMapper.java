@@ -1,7 +1,7 @@
 package com.studyhub.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.studyhub.entity.Category;
+import com.studyhub.pojo.entity.Category;
 import org.apache.ibatis.annotations.Mapper;
 
 @Mapper

@@ -1,7 +1,7 @@
 package com.studyhub.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.studyhub.entity.KnowledgePoint;
+import com.studyhub.pojo.entity.KnowledgePoint;
 import org.apache.ibatis.annotations.Mapper;
 
 @Mapper

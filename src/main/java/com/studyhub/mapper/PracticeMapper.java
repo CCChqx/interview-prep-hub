@@ -1,8 +1,8 @@
 package com.studyhub.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.studyhub.entity.KnowledgePoint;
-import com.studyhub.entity.ReviewRecord;
+import com.studyhub.pojo.entity.KnowledgePoint;
+import com.studyhub.pojo.entity.ReviewRecord;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 

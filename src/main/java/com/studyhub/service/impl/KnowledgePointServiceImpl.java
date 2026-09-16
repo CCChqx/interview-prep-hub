@@ -1,14 +1,15 @@
 package com.studyhub.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.studyhub.pojo.entity.KnowledgePoint;
 import com.studyhub.exception.BusinessException;
 import com.studyhub.mapper.CategoryMapper;
 import com.studyhub.mapper.KnowledgePointMapper;
+import com.studyhub.pojo.entity.KnowledgePoint;
 import com.studyhub.pojo.query.KnowledgePointQuery;
 import com.studyhub.pojo.vo.KnowledgePointVO;
 import com.studyhub.service.KnowledgePointService;
@@ -17,6 +18,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -128,18 +130,27 @@ public class KnowledgePointServiceImpl extends ServiceImpl<KnowledgePointMapper,
     @Override
     public Page<KnowledgePointVO> getPage(KnowledgePointQuery query){
 
-        int page = query.getPage() == null?0:query.getPage();
-        int size = query.getSize() == null?0:query.getSize();
+        Page<KnowledgePoint> mpPage = query.toMpPage(
+                KnowledgePointQuery.SORT_FIELDS,
+                OrderItem.desc("update_time"),
+                OrderItem.desc("id"));
+
         Long categoryId = query.getCategoryId();
         String keyword = query.getKeyword();
         Integer importance = query.getImportance();
         Integer status = query.getStatus();
 
-        size = Math.min(size,100);
-        page = Math.max(page,1);
 
         // 缓存key 按查询参数拼，不同条件 = 不同缓存
-        String key = "studyhub:kp:page:" + categoryId + "_" + page + "_" + size + "_" + keyword + "_" + importance + "_" + status;
+        String key = "studyhub:kp:page:"
+                + categoryId + "_" +
+                mpPage.getCurrent() + "_" +
+                mpPage.getSize() + "_" +
+                keyword + "_" +
+                importance + "_" +
+                status + "_" +
+                query.getSortField() + "_"+
+                query.getIsAsc();
 
         // 先查缓存
         String cache = stringRedisTemplate.opsForValue().get(key);
@@ -153,35 +164,22 @@ public class KnowledgePointServiceImpl extends ServiceImpl<KnowledgePointMapper,
             }
         }
 
-        // 告诉 MP 我要第 page页，每页size条 没命中
-        Page<KnowledgePoint> p = new Page<>(page,size);
 
         LambdaQueryWrapper<KnowledgePoint> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(categoryId != null, KnowledgePoint::getCategoryId, categoryId)
+                .like(StringUtils.hasText(keyword),KnowledgePoint::getTitle,keyword)
+                .eq(importance != null, KnowledgePoint::getImportance, importance)
+                .eq(status != null, KnowledgePoint::getStatus, status);
 
-        // ③ 动态条件：传了才筛，没传不加
-        if (categoryId != null) {
-            wrapper.eq(KnowledgePoint::getCategoryId, categoryId);   // WHERE category_id = ?
-        }
-        if (keyword != null && !keyword.isEmpty()) {
-            wrapper.like(KnowledgePoint::getTitle, keyword);         // AND title LIKE '%?%'
-        }
-        if (importance != null) {
-            wrapper.eq(KnowledgePoint::getImportance, importance);   // AND importance = ?
-        }
-        if (status != null) {
-            wrapper.eq(KnowledgePoint::getStatus, status);           // AND status = ?
-        }
 
         wrapper.select(KnowledgePoint::getId, KnowledgePoint::getCategoryId,
                 KnowledgePoint::getTitle, KnowledgePoint::getTags,
                 KnowledgePoint::getImportance, KnowledgePoint::getStatus,
                 KnowledgePoint::getCreateTime, KnowledgePoint::getUpdateTime);
 
-        // 按时间倒序排列
-        wrapper.orderByDesc(KnowledgePoint::getCreateTime);
 
         // 执行分页查询 自动 COUNT LIMIT
-        Page<KnowledgePoint> result = this.page(p, wrapper);
+        Page<KnowledgePoint> result = this.page(mpPage, wrapper);
 
         // 回填缓存（TTL随机，防雪崩）
         try{

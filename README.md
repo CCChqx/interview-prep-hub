@@ -17,6 +17,9 @@
 
 StudyHub 用**间隔重复算法**解决这个问题：把知识点做成"主动回忆卡片"，按遗忘曲线自动调度复习节奏，并记录完整的学习数据。**从需求、设计到开发、部署，全部独立完成，且已实际自用。**
 
+| Knife4j 接口文档 | http://localhost:8080/doc.html |
+| OpenAPI JSON | http://localhost:8080/v3/api-docs |
+
 ---
 
 ## ✨ 核心特性

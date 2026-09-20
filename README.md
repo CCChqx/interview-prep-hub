@@ -119,6 +119,17 @@ mvn spring-boot:run
 ```
 
 
+### 接口文档
+
+项目启动后，可通过以下地址查看和调试接口：
+
+| 文档 | 地址 |
+|---|---|
+| Knife4j 接口文档 | http://localhost:8080/doc.html |
+| OpenAPI JSON | http://localhost:8080/v3/api-docs |
+
+> 如果修改了 `server.port`，请将地址中的 `8080` 替换为实际端口。
+
 ### 使用流程
 ```
 ① POST /api/auth/login          登录（拿 access + refresh）
@@ -187,3 +198,4 @@ src/main/java/com/studyhub/
 ---
 
 > ⭐ 如果这个项目对你有帮助，欢迎 Star～
+

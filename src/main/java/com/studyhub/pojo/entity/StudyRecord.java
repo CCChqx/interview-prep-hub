@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 public class StudyRecord {
     @TableId(type = IdType.AUTO)
     private Long id;
+    private Long userId;
     private LocalDate recordDate;
     private Integer duration;
     private Integer questionCount;

@@ -2,7 +2,7 @@ package com.studyhub.controller;
 
 import com.studyhub.common.Result;
 import com.studyhub.pojo.dto.LoginRequest;
-import com.studyhub.pojo.dto.RefreshRequest;
+import com.studyhub.pojo.dto.RefreshTokenRequest;
 import com.studyhub.exception.BusinessException;
 import com.studyhub.util.JwtUtil;
 import io.jsonwebtoken.Claims;
@@ -55,9 +55,9 @@ public class AuthController {
 
     //  新接口,放行
     @PostMapping("/refresh")
-    public Result<String> refresh(@RequestBody RefreshRequest req) {
+    public Result<String> refresh(@RequestBody RefreshTokenRequest req) {
         //  获取token
-        Object r = req.getRefresh();
+        Object r = req.getRefreshToken();
         if (r == null) {
             throw new BusinessException(400,"缺少 refresh参数");
         }

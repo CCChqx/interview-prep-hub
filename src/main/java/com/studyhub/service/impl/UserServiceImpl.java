@@ -10,6 +10,7 @@ import com.studyhub.service.UserService;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
@@ -58,9 +59,26 @@ public class UserServiceImpl implements UserService {
         return toVO(user);
     }
 
+    @Transactional
     @Override
     public User authenticate(String username, String rawPassword) {
-        return null;
+        User user = userMapper.selectOne(
+                new LambdaQueryWrapper<User>()
+                        .eq(User::getUsername, username)
+        );
+        if (user == null) {
+            throw new BusinessException(401,"用户名或密码错误");
+        }
+        if (!passwordEncoder.matches(rawPassword, user.getPasswordHash())) {
+            throw new BusinessException(401,"用户名或密码错误");
+        }
+        if (user.getStatus() == 0) {
+            throw new BusinessException(403,"该用户已被冻结");
+        }
+        user.setLastLoginTime(LocalDateTime.now());
+        user.setUpdateTime(LocalDateTime.now());
+        userMapper.updateById(user);
+        return user;
     }
 
     @Override

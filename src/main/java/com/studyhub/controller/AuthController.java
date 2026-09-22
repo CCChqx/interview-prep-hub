@@ -4,12 +4,16 @@ import com.studyhub.common.Result;
 import com.studyhub.pojo.dto.LoginRequest;
 import com.studyhub.pojo.dto.RefreshTokenRequest;
 import com.studyhub.exception.BusinessException;
+import com.studyhub.pojo.dto.RegisterRequest;
+import com.studyhub.pojo.vo.UserVO;
+import com.studyhub.service.UserService;
 import com.studyhub.util.JwtUtil;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.*;
@@ -28,6 +32,9 @@ public class AuthController {
 
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
+
+    @Autowired
+    private UserService userService;
 
     @Operation(summary = "登录")
     @PostMapping("/login")
@@ -85,5 +92,11 @@ public class AuthController {
         String username = claims.get("username", String.class);
         String access = jwtUtil.generateToken(1L, username, "access");
         return Result.success(access);
+    }
+
+    @Operation(summary = "注册")
+    @PostMapping("/register")
+    public Result<UserVO> register(@Valid @RequestBody RegisterRequest req) {
+        return Result.success(userService.register(req));
     }
 }

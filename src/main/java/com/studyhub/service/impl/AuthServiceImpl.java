@@ -101,7 +101,7 @@ public class AuthServiceImpl implements AuthService {
             claims = jwtUtil.parseToken(refreshToken);
         }catch (ExpiredJwtException e){
             throw new BusinessException(401,"refreshToken 已过期,请重新登录");
-        }catch (JwtException  | IllegalArgumentException e){
+        }catch (JwtException | IllegalArgumentException e){
             throw new BusinessException(401,"refresh 无效");
         }
 

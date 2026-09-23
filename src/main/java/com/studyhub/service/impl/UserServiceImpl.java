@@ -27,6 +27,15 @@ public class UserServiceImpl implements UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
+    /**
+     * 注册用户。
+     *
+     * 1. 先查重，给普通重复请求一个友好的错误
+     * 2. BCrypt 编码密码
+     * 3. 写入数据库
+     * 4. 数据库唯一索引作为并发场景下的最终防线
+     */
+    @Transactional
     @Override
     public UserVO register(RegisterRequest request) {
         // 获取用户传入的用户名称
@@ -59,6 +68,13 @@ public class UserServiceImpl implements UserService {
         return toVO(user);
     }
 
+
+    /**
+     * 校验用户名和密码。
+     *
+     * 这里返回 User 是给 AuthService 内部使用的，
+     * 不能直接把这个 User 返回给 Controller 或前端。
+     */
     @Transactional
     @Override
     public User authenticate(String username, String rawPassword) {
@@ -72,7 +88,7 @@ public class UserServiceImpl implements UserService {
         if (!passwordEncoder.matches(rawPassword, user.getPasswordHash())) {
             throw new BusinessException(401,"用户名或密码错误");
         }
-        if (user.getStatus() == 0) {
+        if (Integer.valueOf(0).equals(user.getStatus())) {
             throw new BusinessException(403,"该用户已被冻结");
         }
         user.setLastLoginTime(LocalDateTime.now());
@@ -83,7 +99,16 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserVO getCurrentUser(Long userId) {
-        return null;
+        User user = getUserById(userId);
+
+        if (user == null ||  user.getStatus() == 0) {
+            throw new BusinessException(401,"用户不存在或已失效");
+        }
+        return toVO(user);
     }
 
+    @Override
+    public User getUserById(Long userId) {
+        return userMapper.selectById(userId);
+    }
 }

@@ -11,5 +11,7 @@ public interface UserService {
 
     User authenticate(String username,String rawPassword);
 
+    User getUserById(Long userId);
+
     UserVO getCurrentUser(Long userId);
 }

@@ -15,6 +15,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class AuthServiceImpl implements AuthService {
@@ -132,6 +133,13 @@ public class AuthServiceImpl implements AuthService {
             throw new BusinessException(401,"refresh 已失效,请重新登录");
         }
 
+        Long remain = stringRedisTemplate.getExpire(refreshKey(userId), TimeUnit.MILLISECONDS);
+
+        stringRedisTemplate.opsForValue().set(
+                refreshKey(userId),
+                jwtUtil.generateToken(userId,user.getUsername(),"refresh"),
+                Duration.ofMillis(remain));
+
         String accessToken = jwtUtil.generateToken(
                 user.getId(),
                 user.getUsername(),
@@ -154,6 +162,7 @@ public class AuthServiceImpl implements AuthService {
     public void logout(Long userId) {
         stringRedisTemplate.delete(refreshKey(userId));
     }
+
 
     private String refreshKey(Long userId) {
         return REFRESH_TOKEN_PREFIX + userId;

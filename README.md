@@ -34,10 +34,10 @@ StudyHub 将知识点转化为可调度的复习对象，通过间隔重复算�
 | SM-2 复习 | ✅ 已完成 | 评分驱动复习间隔，支持复习上限和毕业状态 |
 | Redis 学习统计 | ✅ 已完成 | ZSet 打卡、String 计数、MySQL 日维度归档 |
 | JWT 双 Token | ✅ 已完成 | access + refresh 分离，type 校验，refresh 存储 Redis |
-| 注册与 BCrypt | 🟡 重构中 | 注册 Service 和 BCrypt 已实现，认证接口正在整理，注册端点需要补回并联调 |
-| 登录认证 | 🟡 重构中 | 已建立 AuthService，正在将登录、刷新、登出从 Controller 收口到 Service |
-| 当前用户接口 | 🟡 重构中 | `/api/users/me` 尚未完成 |
-| 用户数据隔离 | 🟡 重构中 | `user` 表和 `study_record.user_id` 已落库，Checkin 和统计查询仍待按 userId 改造 |
+| 注册与 BCrypt | ✅ 已完成 | `POST /api/auth/register`、用户查重、BCrypt 密码哈希和 UserVO 返回已闭环 |
+| 登录与 Token | ✅ 已完成 | 数据库登录、JWT access/refresh、Redis refresh 存储、refresh 和 logout 已闭环 |
+| 当前用户接口 | 🟡 进行中 | 认证上下文已具备，`GET /api/users/me` 待完成 |
+| 用户数据隔离 | 🟡 进行中 | `user` 表和 `study_record.user_id` 已落库，Checkin 和统计查询仍待按 userId 改造 |
 | 复习状态拆分 | 📌 规划中 | 计划拆分为 `review_state + review_log`，支持状态重算和算法版本化 |
 | 导入任务化 | 📌 规划中 | 当前已有线程池批量导入，后续改为任务表 + Worker 的异步流程 |
 
@@ -171,7 +171,7 @@ mvn spring-boot:run
 ⑤ GET  /api/review/dueList       查看今日待复习知识点
 ```
 
-> 注册接口、当前用户接口和用户维度统计仍处于认证重构阶段，尚未作为稳定接口对外承诺。
+> 注册、登录、刷新和登出接口已经完成基础链路；`GET /api/users/me` 和 Checkin/统计的 userId 隔离仍是下一步工作。
 
 ---
 
@@ -226,11 +226,11 @@ src/main/java/com/studyhub/
 - [x] 将 `study_record` 增加 `user_id` 并建立 `(user_id, record_date)` 唯一索引
 - [x] 实现注册 Service 和对象转换
 - [x] 实现数据库登录和 JWT 双 Token
-- [ ] 补回并验证 `POST /api/auth/register`
+- [x] 补回并验证 `POST /api/auth/register`
 - [ ] 完成 `GET /api/users/me`
-- [ ] 将登入、刷新、登出逻辑统一收口到 AuthService
+- [x] 将登录、刷新、登出逻辑统一收口到 AuthService
 - [ ] 将打卡和学习统计的 Redis Key、数据库查询全部改为用户维度
-- [ ] 完成两个用户的交叉隔离测试
+- [ ] 完成两个用户的交叉隔离测试（下一阶段）
 
 ## 📌 后续规划
 
@@ -250,3 +250,5 @@ src/main/java/com/studyhub/
 ---
 
 > ⭐ 如果这个项目对你有帮助，欢迎 Star～
+
+

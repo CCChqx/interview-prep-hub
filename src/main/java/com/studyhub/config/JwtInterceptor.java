@@ -33,9 +33,12 @@ public class JwtInterceptor implements HandlerInterceptor {
             if (!"access".equals(claims.get("type"))) {
                 return reject(response,"token 类型错误,请用 access token");
             }
+
             // 把userId /username 放进 request，供后面的Controller用
-            request.setAttribute("userId",claims.getSubject());
+            Long userId = Long.valueOf(claims.getSubject());
+            request.setAttribute("userId",userId);
             request.setAttribute("username",claims.get("username"));
+
             return  true; //放行
         }catch (Exception e){
             return reject(response,"token 无效或已过期");
